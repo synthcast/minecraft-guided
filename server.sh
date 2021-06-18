@@ -5,41 +5,39 @@ printf "\nAvailable base versions from 1.8 through 1.15, version 1.16.5, and cur
 
 custom () {
 printf "Download finished!\n"
-while true
-do
+printf "\nSpecify amount of ram im megabytes\n"
 read -p "The minimum amount of ram the server should use: " Xms
 read -p "The maximum amount of ram the server should use: " Xmx
-if [[ $Xms != *"M"* ]] || [[ $Xmx != *"M"* ]]; then
-	printf "\nPlease specify minimum and maximum amount of ram in megabytes by adding 'M' to the end of the value\n"
-	continue;
-else
-break;
-fi
-done
-PARAM="java -Xms$Xms -Xmx$Xmx -jar minecraft_server.$VER.jar nogui"
+PARAM="java -Xms"$Xms"M -Xmx"$Xmx"M -jar minecraft_server.$VER.jar nogui"
 touch run.sh
+# Creating run script with given parameters and running the server (which generates the eula) 
 printf "#!/bin/sh\n\n$PARAM" >> run.sh
 chmod +x ./run.sh
 printf "\nStart script created\n"
 version-check
 }
 
+# Fixes bug with version 1.8 not stoping after running the jar file for the first time
 version-check () {
 if [[ $VER == 1.8 ]]; then
-	$PARAM & PID=$!; sleep 10
-	kill $PID; server
+	$PARAM & PID=$!
+	sleep 10s
+	kill $PID 
+	server
 else
-	./run.sh; server
+	./run.sh
+	server
 fi
 }
 
+# Setting offline (insecure) mode, agreeing to the eula and restarting the server  
 server () {
 printf "online-mode=false" >> server.properties
 sed -i 's/false/true/g' eula.txt
 ./run.sh
 }
 
-#Available Versions
+# Available Versions
 default () {
 while true
 do
